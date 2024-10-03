@@ -207,13 +207,14 @@ function EditableRow({
                 <Input
                   defaultValue={conversionObject.volume}
                   className="col-span-3"
+                  step={0.1}
                   name="volume"
                   type="number"
                 />
               </div>
             </div>
             <DialogFooter className="mt-6">
-              <Button type="submit">Add</Button>
+              <Button type="submit">Update</Button>
             </DialogFooter>
           </editFetcher.Form>
         </DialogContent>
