@@ -1,13 +1,13 @@
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignOutButton,
-  SignUpButton,
-  UserButton,
-} from "@clerk/remix";
-import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/remix";
+import { getAuth } from "@clerk/remix/ssr.server";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+  TypedResponse,
+} from "@remix-run/node";
+import { redirect, useFetcher, useLoaderData } from "@remix-run/react";
+
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -38,13 +38,19 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader(): Promise<
-  {
-    id: string;
-    name: string;
-    volume: string;
-  }[]
+export async function loader(args: LoaderFunctionArgs): Promise<
+  | {
+      id: string;
+      name: string;
+      volume: string;
+    }[]
+  | TypedResponse<never>
 > {
+  const { userId } = await getAuth(args);
+  if (!userId) {
+    return redirect("/login");
+  }
+
   const data = await fetch(`${process.env.API_BASE_URL}/objects`);
 
   return data.json();
@@ -55,14 +61,15 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const intent = body.get("intent");
 
+  // TODO: handle errors
   if (intent === "delete") {
-    return fetch(`${process.env.API_BASE_URL}/objects/${body.get("id")}`, {
+    await fetch(`${process.env.API_BASE_URL}/objects/${body.get("id")}`, {
       method: "DELETE",
     });
   }
 
   if (intent === "add") {
-    const Object = await fetch(`${process.env.API_BASE_URL}/objects`, {
+    const response = await fetch(`${process.env.API_BASE_URL}/objects`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -73,40 +80,35 @@ export async function action({ request }: ActionFunctionArgs) {
       }),
     });
 
-    return Object.json();
+    return response.json();
   }
 }
 
 export default function Index() {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof action>();
   const data = useLoaderData<typeof loader>();
 
   return (
-    <div className="flex flex-col h-screen items-center">
-      <div className="flex gap-3">
-        <SignedIn>
-          <div>
-            <p>View your profile here</p>
-            <UserButton />
-          </div>
-          <div>
-            <SignOutButton />
-          </div>
-        </SignedIn>
-        <SignedOut>
-          <div>
-            <SignInButton />
-          </div>
-          <div>
-            <SignUpButton />
-          </div>
-        </SignedOut>
+    <div className="grid auto-rows-max gap-4 p-4 w-full h-screen items-center">
+      <div className="grid">
+        <div className="ml-auto flex">
+          <SignedIn>
+            <div>
+              <UserButton />
+            </div>
+          </SignedIn>
+          <SignedOut>
+            <div>
+              <SignInButton />
+            </div>
+          </SignedOut>
+        </div>
       </div>
-      <div>
+      <div className="rounded-xl shadow-sm border border-gray-200">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Id</TableHead>
+              <TableHead>ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Volume</TableHead>
             </TableRow>
@@ -114,7 +116,11 @@ export default function Index() {
           <TableBody>
             {data.map((object) => (
               <TableRow key={object.id}>
-                <TableCell>{object.id}</TableCell>
+                <TableCell className="max-w-12 text-nowrap">
+                  <div className="overflow-hidden overflow-ellipsis hover:overflow-visible">
+                    {object.id}
+                  </div>
+                </TableCell>
                 <TableCell>{object.name}</TableCell>
                 <TableCell>{object.volume}</TableCell>
                 <TableCell>
