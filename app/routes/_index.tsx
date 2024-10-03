@@ -52,15 +52,29 @@ export async function loader(): Promise<
 
 export async function action({ request }: ActionFunctionArgs) {
   const body = await request.formData();
-  const Object = await fetch(`${process.env.API_BASE_URL}/objects`, {
-    method: "POST",
-    body: JSON.stringify({
-      name: body.get("name"),
-      volume: body.get("volume"),
-    }),
-  });
 
-  return Object.json();
+  const intent = body.get("intent");
+
+  if (intent === "delete") {
+    return fetch(`${process.env.API_BASE_URL}/objects/${body.get("id")}`, {
+      method: "DELETE",
+    });
+  }
+
+  if (intent === "add") {
+    const Object = await fetch(`${process.env.API_BASE_URL}/objects`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: body.get("name"),
+        volume: body.get("volume"),
+      }),
+    });
+
+    return Object.json();
+  }
 }
 
 export default function Index() {
@@ -103,6 +117,13 @@ export default function Index() {
                 <TableCell>{object.id}</TableCell>
                 <TableCell>{object.name}</TableCell>
                 <TableCell>{object.volume}</TableCell>
+                <TableCell>
+                  <fetcher.Form method="DELETE">
+                    <input type="hidden" name="intent" value="delete" />
+                    <input type="hidden" name="id" value={object.id} />
+                    <Button type="submit">Delete</Button>
+                  </fetcher.Form>
+                </TableCell>
               </TableRow>
             ))}
             <TableRow className="hover:bg-white">
@@ -115,7 +136,9 @@ export default function Index() {
                     <DialogHeader>
                       <DialogTitle>Add a new Object</DialogTitle>
                     </DialogHeader>
-                    <fetcher.Form method="post">
+                    <fetcher.Form method="POST">
+                      <input type="hidden" name="intent" value="add" />
+
                       <div className="grid gap-6">
                         <div className="grid grid-cols-4 items-center gap-5">
                           <Label>Name:</Label>
