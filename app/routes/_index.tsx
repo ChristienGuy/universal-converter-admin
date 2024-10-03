@@ -6,8 +6,19 @@ import {
   SignUpButton,
   UserButton,
 } from "@clerk/remix";
-import type { MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
+import { useFetcher, useLoaderData } from "@remix-run/react";
+import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 import {
   Table,
   TableBody,
@@ -39,7 +50,21 @@ export async function loader(): Promise<
   return data.json();
 }
 
+export async function action({ request }: ActionFunctionArgs) {
+  const body = await request.formData();
+  const Object = await fetch(`${process.env.API_BASE_URL}/objects`, {
+    method: "POST",
+    body: JSON.stringify({
+      name: body.get("name"),
+      volume: body.get("volume"),
+    }),
+  });
+
+  return Object.json();
+}
+
 export default function Index() {
+  const fetcher = useFetcher();
   const data = useLoaderData<typeof loader>();
 
   return (
@@ -80,9 +105,41 @@ export default function Index() {
                 <TableCell>{object.volume}</TableCell>
               </TableRow>
             ))}
-            <TableRow>
+            <TableRow className="hover:bg-white">
               <TableCell>
-                <button>Add new</button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>Add new</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add a new Object</DialogTitle>
+                    </DialogHeader>
+                    <fetcher.Form method="post">
+                      <div className="grid gap-6">
+                        <div className="grid grid-cols-4 items-center gap-5">
+                          <Label>Name:</Label>
+                          <Input
+                            className="col-span-3"
+                            name="name"
+                            type="text"
+                          />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-5">
+                          <Label>Volume:</Label>
+                          <Input
+                            className="col-span-3"
+                            name="volume"
+                            type="number"
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter className="mt-6">
+                        <Button type="submit">Add</Button>
+                      </DialogFooter>
+                    </fetcher.Form>
+                  </DialogContent>
+                </Dialog>
               </TableCell>
             </TableRow>
           </TableBody>
