@@ -111,6 +111,8 @@ export async function action({ request }: ActionFunctionArgs) {
       const data = await response.json();
       return { ok: true, ...data };
     }
+
+    throw new Error("Failed to update the object");
   }
 
   if (intent === "add") {
@@ -273,29 +275,27 @@ export default function Index() {
         </div>
       </div>
       <div className="rounded-xl shadow-sm border border-gray-200">
-        <fetcher.Form method="PATCH">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Volume</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((object) => (
-                <EditableRow conversionObject={object} key={object.id} />
-              ))}
-              <TableRow className="hover:bg-white">
-                <TableCell>
-                  <Button onClick={() => setIsAddNewDialogOpen(true)}>
-                    Add new
-                  </Button>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </fetcher.Form>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>ID</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Volume</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((object) => (
+              <EditableRow conversionObject={object} key={object.id} />
+            ))}
+            <TableRow className="hover:bg-white">
+              <TableCell>
+                <Button onClick={() => setIsAddNewDialogOpen(true)}>
+                  Add new
+                </Button>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
 
         <Dialog open={isAddNewDialogOpen}>
           <DialogContent>
