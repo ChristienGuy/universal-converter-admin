@@ -297,7 +297,14 @@ export default function Index() {
           </TableBody>
         </Table>
 
-        <Dialog open={isAddNewDialogOpen}>
+        <Dialog
+          onOpenChange={(open) => {
+            if (!open) {
+              setIsAddNewDialogOpen(false);
+            }
+          }}
+          open={isAddNewDialogOpen}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add a new Object</DialogTitle>
