@@ -92,8 +92,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const intent = body.get("intent");
 
-  console.log("intent", intent);
-
   const headers = new Headers();
   headers.append("Content-Type", "application/json");
   headers.append("cookie", request.headers.get("Cookie") ?? "");
