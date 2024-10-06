@@ -327,7 +327,7 @@ export default function Index() {
             <TableRow>
               <TableHead>ID</TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>Volume</TableHead>
+              <TableHead>Volume (cm³)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
