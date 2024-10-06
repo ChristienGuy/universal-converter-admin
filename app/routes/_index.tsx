@@ -35,7 +35,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Input } from "~/components/ui/input";
+import { Input, InputProps } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import {
   Table,
@@ -45,6 +45,18 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+
+function VolumeNumberInput(props: InputProps) {
+  return (
+    <Input
+      className="col-span-3"
+      name="volume"
+      type="number"
+      step="0.01"
+      {...props}
+    />
+  );
+}
 
 export const meta: MetaFunction = () => {
   return [
@@ -210,7 +222,7 @@ function EditableRow({
 
             <div className="grid gap-6">
               <div className="grid grid-cols-4 items-center gap-5">
-                <Label>Name:</Label>
+                <Label>Name</Label>
                 <Input
                   defaultValue={conversionObject.name}
                   className="col-span-3"
@@ -219,14 +231,8 @@ function EditableRow({
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-5">
-                <Label>Volume:</Label>
-                <Input
-                  defaultValue={conversionObject.volume}
-                  className="col-span-3"
-                  step={0.1}
-                  name="volume"
-                  type="number"
-                />
+                <Label>Volume</Label>
+                <VolumeNumberInput defaultValue={conversionObject.volume} />
               </div>
             </div>
             <DialogFooter className="mt-6">
@@ -243,6 +249,7 @@ function EditableRow({
           </editFetcher.Form>
         </DialogContent>
       </Dialog>
+
       <AlertDialog
         onOpenChange={(open) => {
           if (!open) {
@@ -260,7 +267,11 @@ function EditableRow({
             {conversionObject.name} object.
           </AlertDialogDescription>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel asChild>
+              <Button variant="outline" onClick={() => setIsDeleting(false)}>
+                Cancel
+              </Button>
+            </AlertDialogCancel>
             <deleteFetcher.Form method="DELETE">
               <input type="hidden" name="intent" value="delete" />
               <input type="hidden" name="id" value={conversionObject.id} />
@@ -350,12 +361,12 @@ export default function Index() {
 
               <div className="grid gap-6">
                 <div className="grid grid-cols-4 items-center gap-5">
-                  <Label>Name:</Label>
+                  <Label>Name</Label>
                   <Input className="col-span-3" name="name" type="text" />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-5">
-                  <Label>Volume:</Label>
-                  <Input className="col-span-3" name="volume" type="number" />
+                  <Label>Volume</Label>
+                  <VolumeNumberInput />
                 </div>
               </div>
               <DialogFooter className="mt-6">
