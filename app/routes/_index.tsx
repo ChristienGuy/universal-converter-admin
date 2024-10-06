@@ -11,7 +11,7 @@ import type {
   TypedResponse,
 } from "@remix-run/node";
 import { redirect, useFetcher, useLoaderData } from "@remix-run/react";
-import { EllipsisIcon } from "lucide-react";
+import { EllipsisIcon, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   AlertDialog,
@@ -125,7 +125,12 @@ export async function action({ request }: ActionFunctionArgs) {
       }),
     });
 
-    return response.json();
+    if (response.ok) {
+      const data = await response.json();
+      return { ok: true, ...data };
+    }
+
+    throw new Error("Failed to add the object");
   }
 }
 
@@ -216,7 +221,15 @@ function EditableRow({
               </div>
             </div>
             <DialogFooter className="mt-6">
-              <Button type="submit">Update</Button>
+              <Button
+                type="submit"
+                disabled={editFetcher.state === "submitting"}
+              >
+                {editFetcher.state === "submitting" && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Update
+              </Button>
             </DialogFooter>
           </editFetcher.Form>
         </DialogContent>
@@ -243,7 +256,15 @@ function EditableRow({
               <input type="hidden" name="intent" value="delete" />
               <input type="hidden" name="id" value={conversionObject.id} />
               <AlertDialogAction asChild>
-                <Button type="submit">Delete</Button>
+                <Button
+                  type="submit"
+                  disabled={deleteFetcher.state === "submitting"}
+                >
+                  {deleteFetcher.state === "submitting" && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Delete
+                </Button>
               </AlertDialogAction>
             </deleteFetcher.Form>
           </AlertDialogFooter>
@@ -257,6 +278,12 @@ export default function Index() {
   const fetcher = useFetcher<typeof action>();
   const data = useLoaderData<typeof loader>();
   const [isAddingNewObject, setIsAddingNewObject] = useState(false);
+
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data?.ok) {
+      setIsAddingNewObject(false);
+    }
+  }, [fetcher]);
 
   return (
     <div className="grid auto-rows-max gap-4 p-4 w-full h-screen items-center">
@@ -323,7 +350,12 @@ export default function Index() {
                 </div>
               </div>
               <DialogFooter className="mt-6">
-                <Button type="submit">Add</Button>
+                <Button type="submit" disabled={fetcher.state === "submitting"}>
+                  {fetcher.state === "submitting" && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Add
+                </Button>
               </DialogFooter>
             </fetcher.Form>
           </DialogContent>
