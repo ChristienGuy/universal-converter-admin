@@ -88,10 +88,19 @@ export async function action({ request }: ActionFunctionArgs) {
 
   // TODO: handle errors
   if (intent === "delete") {
-    return fetch(`${process.env.API_BASE_URL}/objects/${body.get("id")}`, {
-      method: "DELETE",
-      headers,
-    });
+    const response = await fetch(
+      `${process.env.API_BASE_URL}/objects/${body.get("id")}`,
+      {
+        method: "DELETE",
+        headers,
+      }
+    );
+
+    if (response.ok) {
+      return { ok: true };
+    }
+
+    throw new Error("Failed to delete the object");
   }
 
   if (intent === "edit") {
