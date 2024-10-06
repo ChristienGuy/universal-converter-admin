@@ -256,7 +256,7 @@ function EditableRow({
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
   const data = useLoaderData<typeof loader>();
-  const [isAddNewDialogOpen, setIsAddNewDialogOpen] = useState(false);
+  const [isAddingNewObject, setIsAddingNewObject] = useState(false);
 
   return (
     <div className="grid auto-rows-max gap-4 p-4 w-full h-screen items-center">
@@ -289,7 +289,7 @@ export default function Index() {
             ))}
             <TableRow className="hover:bg-white">
               <TableCell>
-                <Button onClick={() => setIsAddNewDialogOpen(true)}>
+                <Button onClick={() => setIsAddingNewObject(true)}>
                   Add new
                 </Button>
               </TableCell>
@@ -300,10 +300,10 @@ export default function Index() {
         <Dialog
           onOpenChange={(open) => {
             if (!open) {
-              setIsAddNewDialogOpen(false);
+              setIsAddingNewObject(false);
             }
           }}
-          open={isAddNewDialogOpen}
+          open={isAddingNewObject}
         >
           <DialogContent>
             <DialogHeader>
