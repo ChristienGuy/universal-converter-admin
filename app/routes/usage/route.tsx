@@ -107,21 +107,8 @@ export default function Usage() {
               dataKey={endpointKey}
               stackId="a"
               fill={`var(--color-${endpointKey})`}
-              // radius={[0, 0, 4, 4]}
             />
           ))}
-          {/* <Bar
-            dataKey="comparerandom"
-            stackId="a"
-            fill="var(--color-comparerandom)"
-            radius={[0, 0, 4, 4]}
-          />
-          <Bar
-            dataKey="objects"
-            stackId="a"
-            fill="var(--color-objects)"
-            radius={[4, 4, 0, 0]}
-          /> */}
         </BarChart>
       </ChartContainer>
       <code>
