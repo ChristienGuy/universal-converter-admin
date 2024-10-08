@@ -20,6 +20,9 @@ type UsageResponse = {
   method: string;
 };
 
+const ONE_DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
+const ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
+
 export async function loader(
   args: LoaderFunctionArgs
 ): Promise<UsageResponse[] | TypedResponse<never>> {
@@ -48,34 +51,40 @@ type ChartData = {
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   hour: "numeric",
   weekday: "short",
-  // dateStyle: "full",
 });
 
 export default function Usage() {
   const data = useLoaderData<typeof loader>();
 
   const chartConfig: ChartConfig = {};
-  const chartData: ChartData[] = [];
+  // Create a list of the last day as initial data for chartData
+  const startDate = new Date(Date.now() - ONE_DAY_MILLISECONDS);
+  startDate.setMinutes(0);
+  startDate.setSeconds(0);
+
+  const chartData: ChartData[] = new Array(24).fill(0).map((_, index) => {
+    const timestamp = new Date(
+      startDate.getTime() + index * ONE_HOUR_MILLISECONDS
+    );
+
+    return {
+      timestamp: timestamp.toString(),
+    };
+  });
 
   data.forEach((usage) => {
     const endpointKey = `${usage.method}${usage.endpoint.replaceAll("/", "")}`;
 
-    const timestamp = new Date(usage.createdAt);
+    const usageTimestamp = new Date(usage.createdAt);
+    usageTimestamp.setMinutes(0);
+    usageTimestamp.setSeconds(0);
 
-    timestamp.setMinutes(0);
-    timestamp.setSeconds(0);
-
-    const index = chartData.findIndex(
-      (data) => data.timestamp === timestamp.toString()
-    );
+    const index = chartData.findIndex((data) => {
+      return data.timestamp === usageTimestamp.toString();
+    });
 
     // an index of -1 means that the timestamp does not exist in the chartData array
-    if (index === -1) {
-      chartData.push({
-        timestamp: timestamp.toString(),
-        [endpointKey]: 1,
-      });
-    } else {
+    if (index !== -1) {
       const count = chartData[index][endpointKey] ?? 0;
 
       if (typeof count === "string") {
