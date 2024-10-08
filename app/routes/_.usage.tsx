@@ -45,6 +45,12 @@ type ChartData = {
   [key: string]: number | string; // count of requests to this endpoint
 };
 
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  hour: "numeric",
+  weekday: "short",
+  // dateStyle: "full",
+});
+
 export default function Usage() {
   const data = useLoaderData<typeof loader>();
 
@@ -54,14 +60,19 @@ export default function Usage() {
   data.forEach((usage) => {
     const endpointKey = `${usage.method}${usage.endpoint.replaceAll("/", "")}`;
 
-    const timestamp = usage.createdAt.slice(0, 13);
+    const timestamp = new Date(usage.createdAt);
 
-    const index = chartData.findIndex((data) => data.timestamp === timestamp);
+    timestamp.setMinutes(0);
+    timestamp.setSeconds(0);
+
+    const index = chartData.findIndex(
+      (data) => data.timestamp === timestamp.toString()
+    );
 
     // an index of -1 means that the timestamp does not exist in the chartData array
     if (index === -1) {
       chartData.push({
-        timestamp,
+        timestamp: timestamp.toString(),
         [endpointKey]: 1,
       });
     } else {
@@ -93,12 +104,13 @@ export default function Usage() {
           <CartesianGrid vertical={false} />
           <XAxis
             dataKey="timestamp"
-            tickLine={false}
             tickMargin={10}
             axisLine={false}
-            tickFormatter={(value) => value.slice(0, 3)}
+            tickFormatter={(timestamp) => {
+              return dateFormatter.format(new Date(timestamp));
+            }}
           />
-          <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+          <ChartTooltip content={<ChartTooltipContent />} />
           <ChartLegend content={<ChartLegendContent />} />
           {Object.keys(chartConfig).map((endpointKey) => (
             <Bar

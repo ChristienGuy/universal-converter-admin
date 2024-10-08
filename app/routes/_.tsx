@@ -18,7 +18,7 @@ export default function Layout() {
       </div>
       <div className="col-span-10 p-4">
         <div className="grid h-11">
-          <div className="ml-auto flex">
+          <div className="ml-auto">
             <SignedIn>
               <div>
                 <UserButton />
