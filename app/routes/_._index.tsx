@@ -24,6 +24,7 @@ import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -152,7 +153,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-function EditableRow({
+function ObjectRow({
   conversionObject,
 }: {
   conversionObject: ConversionObject;
@@ -201,6 +202,7 @@ function EditableRow({
           </DropdownMenu>
         </TableCell>
       </TableRow>
+
       <Dialog
         onOpenChange={(open) => {
           if (!open) {
@@ -303,65 +305,68 @@ export default function Index() {
   }, [fetcher]);
 
   return (
-    <div className="rounded-xl shadow-sm border border-gray-200">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Volume (cm³)</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.map((object) => (
-            <EditableRow conversionObject={object} key={object.id} />
-          ))}
-          <TableRow className="hover:bg-white">
-            <TableCell>
-              <Button onClick={() => setIsAddingNewObject(true)}>
-                Add new
-              </Button>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+    <div className="grid gap-4">
+      <div className="flex justify-end w-full">
+        <Button size="sm" onClick={() => setIsAddingNewObject(true)}>
+          Add new
+        </Button>
+      </div>
+      <div className="rounded-xl shadow-sm border border-gray-200">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>ID</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Volume (cm³)</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((object) => (
+              <ObjectRow conversionObject={object} key={object.id} />
+            ))}
+          </TableBody>
+        </Table>
 
-      <Dialog
-        onOpenChange={(open) => {
-          if (!open) {
-            setIsAddingNewObject(false);
-          }
-        }}
-        open={isAddingNewObject}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add a new Object</DialogTitle>
-          </DialogHeader>
-          <fetcher.Form method="POST">
-            <input type="hidden" name="intent" value="add" />
+        <Dialog
+          onOpenChange={(open) => {
+            if (!open) {
+              setIsAddingNewObject(false);
+            }
+          }}
+          open={isAddingNewObject}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add a new Object</DialogTitle>
+              <DialogDescription>
+                Add a new object to the universal converter
+              </DialogDescription>
+            </DialogHeader>
+            <fetcher.Form method="POST">
+              <input type="hidden" name="intent" value="add" />
 
-            <div className="grid gap-6">
-              <div className="grid grid-cols-4 items-center gap-5">
-                <Label>Name</Label>
-                <Input className="col-span-3" name="name" type="text" />
+              <div className="grid gap-6">
+                <div className="grid grid-cols-4 items-center gap-5">
+                  <Label>Name</Label>
+                  <Input className="col-span-3" name="name" type="text" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-5">
+                  <Label>Volume</Label>
+                  <VolumeNumberInput />
+                </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-5">
-                <Label>Volume</Label>
-                <VolumeNumberInput />
-              </div>
-            </div>
-            <DialogFooter className="mt-6">
-              <Button type="submit" disabled={fetcher.state === "submitting"}>
-                {fetcher.state === "submitting" && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                Add
-              </Button>
-            </DialogFooter>
-          </fetcher.Form>
-        </DialogContent>
-      </Dialog>
+              <DialogFooter className="mt-6">
+                <Button type="submit" disabled={fetcher.state === "submitting"}>
+                  {fetcher.state === "submitting" && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Add
+                </Button>
+              </DialogFooter>
+            </fetcher.Form>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }
