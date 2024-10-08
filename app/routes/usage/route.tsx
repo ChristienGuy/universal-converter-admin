@@ -111,9 +111,6 @@ export default function Usage() {
           ))}
         </BarChart>
       </ChartContainer>
-      <code>
-        <pre>{JSON.stringify(data, null, 2)}</pre>
-      </code>
     </div>
   );
 }
