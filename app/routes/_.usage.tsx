@@ -52,7 +52,7 @@ export default function Usage() {
   const chartData: ChartData[] = [];
 
   data.forEach((usage) => {
-    const endpointKey = usage.endpoint.replaceAll("/", "");
+    const endpointKey = `${usage.method}${usage.endpoint.replaceAll("/", "")}`;
 
     const timestamp = usage.createdAt.slice(0, 13);
 
@@ -79,7 +79,7 @@ export default function Usage() {
 
     if (!chartConfig[endpointKey]) {
       chartConfig[endpointKey] = {
-        label: usage.endpoint,
+        label: `${usage.method} ${usage.endpoint}`,
         // TODO: add additional colors to tailwind.css for more than 5 bars
         color: `hsl(var(--chart-${Object.keys(chartConfig).length + 1}))`,
       };
@@ -87,8 +87,7 @@ export default function Usage() {
   });
 
   return (
-    <div>
-      <h1>Usage</h1>
+    <div className="rounded-xl shadow-sm border border-gray-200 p-6">
       <ChartContainer config={chartConfig}>
         <BarChart accessibilityLayer data={chartData}>
           <CartesianGrid vertical={false} />

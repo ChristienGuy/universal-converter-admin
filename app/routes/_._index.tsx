@@ -1,4 +1,3 @@
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/remix";
 import { getAuth } from "@clerk/remix/ssr.server";
 import {
   AlertDialogAction,
@@ -304,81 +303,65 @@ export default function Index() {
   }, [fetcher]);
 
   return (
-    <div className="grid auto-rows-max gap-4 p-4 w-full h-screen items-center">
-      <div className="grid h-9">
-        <div className="ml-auto flex">
-          <SignedIn>
-            <div>
-              <UserButton />
-            </div>
-          </SignedIn>
-          <SignedOut>
-            <div>
-              <SignInButton />
-            </div>
-          </SignedOut>
-        </div>
-      </div>
-      <div className="rounded-xl shadow-sm border border-gray-200">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Volume (cm³)</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.map((object) => (
-              <EditableRow conversionObject={object} key={object.id} />
-            ))}
-            <TableRow className="hover:bg-white">
-              <TableCell>
-                <Button onClick={() => setIsAddingNewObject(true)}>
-                  Add new
-                </Button>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+    <div className="rounded-xl shadow-sm border border-gray-200">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>ID</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Volume (cm³)</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.map((object) => (
+            <EditableRow conversionObject={object} key={object.id} />
+          ))}
+          <TableRow className="hover:bg-white">
+            <TableCell>
+              <Button onClick={() => setIsAddingNewObject(true)}>
+                Add new
+              </Button>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
 
-        <Dialog
-          onOpenChange={(open) => {
-            if (!open) {
-              setIsAddingNewObject(false);
-            }
-          }}
-          open={isAddingNewObject}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add a new Object</DialogTitle>
-            </DialogHeader>
-            <fetcher.Form method="POST">
-              <input type="hidden" name="intent" value="add" />
+      <Dialog
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsAddingNewObject(false);
+          }
+        }}
+        open={isAddingNewObject}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add a new Object</DialogTitle>
+          </DialogHeader>
+          <fetcher.Form method="POST">
+            <input type="hidden" name="intent" value="add" />
 
-              <div className="grid gap-6">
-                <div className="grid grid-cols-4 items-center gap-5">
-                  <Label>Name</Label>
-                  <Input className="col-span-3" name="name" type="text" />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-5">
-                  <Label>Volume</Label>
-                  <VolumeNumberInput />
-                </div>
+            <div className="grid gap-6">
+              <div className="grid grid-cols-4 items-center gap-5">
+                <Label>Name</Label>
+                <Input className="col-span-3" name="name" type="text" />
               </div>
-              <DialogFooter className="mt-6">
-                <Button type="submit" disabled={fetcher.state === "submitting"}>
-                  {fetcher.state === "submitting" && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Add
-                </Button>
-              </DialogFooter>
-            </fetcher.Form>
-          </DialogContent>
-        </Dialog>
-      </div>
+              <div className="grid grid-cols-4 items-center gap-5">
+                <Label>Volume</Label>
+                <VolumeNumberInput />
+              </div>
+            </div>
+            <DialogFooter className="mt-6">
+              <Button type="submit" disabled={fetcher.state === "submitting"}>
+                {fetcher.state === "submitting" && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Add
+              </Button>
+            </DialogFooter>
+          </fetcher.Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
