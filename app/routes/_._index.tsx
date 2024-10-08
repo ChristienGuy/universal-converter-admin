@@ -307,7 +307,11 @@ export default function Index() {
   return (
     <div className="grid gap-4">
       <div className="flex justify-end w-full">
-        <Button size="sm" onClick={() => setIsAddingNewObject(true)}>
+        <Button
+          className="shadow-sm"
+          size="sm"
+          onClick={() => setIsAddingNewObject(true)}
+        >
           Add new
         </Button>
       </div>

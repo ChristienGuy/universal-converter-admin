@@ -53,6 +53,11 @@ module.exports = {
     // Typescript
     {
       files: ["**/*.{ts,tsx}"],
+      rules: [
+        {
+          "react/prop-types": "off",
+        },
+      ],
       plugins: ["@typescript-eslint", "import"],
       parser: "@typescript-eslint/parser",
       settings: {
