@@ -20,6 +20,11 @@ type UsageResponse = {
   method: string;
 };
 
+type ChartData = {
+  timestamp: string;
+  [key: string]: number | string; // count of requests to this endpoint
+};
+
 const ONE_DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
 const ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
 
@@ -43,26 +48,27 @@ export async function loader(
   return usage.json();
 }
 
-type ChartData = {
-  timestamp: string;
-  [key: string]: number | string; // count of requests to this endpoint
-};
-
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   hour: "numeric",
   weekday: "short",
 });
 
-export default function Usage() {
-  const data = useLoaderData<typeof loader>();
-
-  const chartConfig: ChartConfig = {};
-  // Create a list of the last day as initial data for chartData
+function getChartData(
+  {
+    length,
+  }: {
+    /**
+     * Length of the chart data array in hours, defaults to 25 to show the last 24 hours including the current hour
+     */
+    length: number;
+  } = {
+    length: 25,
+  }
+): ChartData[] {
   const startDate = new Date(Date.now() - ONE_DAY_MILLISECONDS);
   startDate.setMinutes(0);
   startDate.setSeconds(0);
-
-  const chartData: ChartData[] = new Array(25).fill(0).map((_, index) => {
+  return new Array(length).fill(0).map((_, index) => {
     const timestamp = new Date(
       startDate.getTime() + index * ONE_HOUR_MILLISECONDS
     );
@@ -71,8 +77,17 @@ export default function Usage() {
       timestamp: timestamp.toString(),
     };
   });
+}
+
+export default function Usage() {
+  const data = useLoaderData<typeof loader>();
+
+  const chartConfig: ChartConfig = {};
+  const chartData = getChartData();
 
   data.forEach((usage) => {
+    // key is a function of the method and endpoint
+    // e.g GET /compare/random -> GETcomparerandom
     const endpointKey = `${usage.method}${usage.endpoint.replaceAll("/", "")}`;
 
     const usageTimestamp = new Date(usage.createdAt);
