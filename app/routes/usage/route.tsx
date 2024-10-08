@@ -86,8 +86,6 @@ export default function Usage() {
     }
   });
 
-  console.log("chartData", chartData);
-
   return (
     <div>
       <h1>Usage</h1>
