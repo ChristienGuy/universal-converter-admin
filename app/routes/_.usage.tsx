@@ -62,7 +62,7 @@ export default function Usage() {
   startDate.setMinutes(0);
   startDate.setSeconds(0);
 
-  const chartData: ChartData[] = new Array(24).fill(0).map((_, index) => {
+  const chartData: ChartData[] = new Array(25).fill(0).map((_, index) => {
     const timestamp = new Date(
       startDate.getTime() + index * ONE_HOUR_MILLISECONDS
     );
