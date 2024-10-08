@@ -122,38 +122,41 @@ export default function Usage() {
   });
 
   return (
-    <div className="rounded-xl shadow-sm border border-gray-200 p-6">
-      <ChartContainer config={chartConfig}>
-        <BarChart accessibilityLayer data={chartData}>
-          <CartesianGrid vertical={false} />
-          <XAxis
-            dataKey="timestamp"
-            tickMargin={14}
-            axisLine={false}
-            tickFormatter={(timestamp) => {
-              return dateFormatter.format(new Date(timestamp));
-            }}
-          />
-          <ChartTooltip
-            content={
-              <ChartTooltipContent
-                labelFormatter={(timestamp) => {
-                  return dateFormatter.format(new Date(timestamp));
-                }}
-              />
-            }
-          />
-          <ChartLegend content={<ChartLegendContent />} />
-          {Object.keys(chartConfig).map((endpointKey) => (
-            <Bar
-              key={endpointKey}
-              dataKey={endpointKey}
-              stackId="a"
-              fill={`var(--color-${endpointKey})`}
+    <div className="grid gap-4">
+      <div></div>
+      <div className="rounded-xl shadow-sm border border-gray-200 p-6">
+        <ChartContainer config={chartConfig}>
+          <BarChart accessibilityLayer data={chartData}>
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="timestamp"
+              tickMargin={14}
+              axisLine={false}
+              tickFormatter={(timestamp) => {
+                return dateFormatter.format(new Date(timestamp));
+              }}
             />
-          ))}
-        </BarChart>
-      </ChartContainer>
+            <ChartTooltip
+              content={
+                <ChartTooltipContent
+                  labelFormatter={(timestamp) => {
+                    return dateFormatter.format(new Date(timestamp));
+                  }}
+                />
+              }
+            />
+            <ChartLegend content={<ChartLegendContent />} />
+            {Object.keys(chartConfig).map((endpointKey) => (
+              <Bar
+                key={endpointKey}
+                dataKey={endpointKey}
+                stackId="a"
+                fill={`var(--color-${endpointKey})`}
+              />
+            ))}
+          </BarChart>
+        </ChartContainer>
+      </div>
     </div>
   );
 }
