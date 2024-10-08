@@ -20,17 +20,6 @@ type UsageResponse = {
   method: string;
 };
 
-// const chartConfig = {
-//   compare: {
-//     label: "/compare",
-//     color: "hsl(var(--chart-1))",
-//   },
-//   objects: {
-//     label: "/objects",
-//     color: "hsl(var(--chart-2))",
-//   },
-// } satisfies ChartConfig;
-
 export async function loader(
   args: LoaderFunctionArgs
 ): Promise<UsageResponse[] | TypedResponse<never>> {
