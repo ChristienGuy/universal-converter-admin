@@ -104,13 +104,21 @@ export default function Usage() {
           <CartesianGrid vertical={false} />
           <XAxis
             dataKey="timestamp"
-            tickMargin={10}
+            tickMargin={14}
             axisLine={false}
             tickFormatter={(timestamp) => {
               return dateFormatter.format(new Date(timestamp));
             }}
           />
-          <ChartTooltip content={<ChartTooltipContent />} />
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                labelFormatter={(timestamp) => {
+                  return dateFormatter.format(new Date(timestamp));
+                }}
+              />
+            }
+          />
           <ChartLegend content={<ChartLegendContent />} />
           {Object.keys(chartConfig).map((endpointKey) => (
             <Bar
