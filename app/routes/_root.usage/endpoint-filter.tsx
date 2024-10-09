@@ -1,5 +1,5 @@
 import { CommandList } from "cmdk";
-import { CheckIcon } from "lucide-react";
+import { Check, CheckIcon } from "lucide-react";
 import { ReactNode } from "react";
 import { Button } from "~/components/ui/button";
 import {
@@ -29,10 +29,18 @@ export function EndpointFilter({
   options: EndpointFilter[];
   onSelect: (option: EndpointFilter) => void;
 }) {
+  const isAnyOptionSelected = options.some((option) => option.active);
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="shadow-sm" variant="outline" size="sm">
+        <Button
+          className={cn("shadow-sm gap-2", {
+            "bg-primary text-white": isAnyOptionSelected,
+          })}
+          variant="outline"
+          size="sm"
+        >
+          {isAnyOptionSelected && <CheckIcon className="size-3" />}
           Endpoints
         </Button>
       </PopoverTrigger>
