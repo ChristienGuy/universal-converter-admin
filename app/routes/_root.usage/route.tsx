@@ -1,5 +1,5 @@
 import { getAuth } from "@clerk/remix/ssr.server";
-import { LoaderFunctionArgs, redirect, TypedResponse } from "@remix-run/node";
+import { LoaderFunctionArgs, redirect, SerializeFrom } from "@remix-run/node";
 
 import { useLoaderData } from "@remix-run/react";
 
@@ -130,7 +130,7 @@ const getDerivedChartData = (
   endpointFilter: EndpointFilter[]
 ) => {
   let chartData = initialChartData;
-  let chartConfig = { ...initialChartConfig };
+  let chartConfig = initialChartConfig;
 
   if (endpointFilter.some((filter) => filter.active)) {
     Object.keys(initialChartConfig).forEach((key) => {
@@ -143,7 +143,7 @@ const getDerivedChartData = (
     });
 
     chartData = initialChartData.map((data) => {
-      let newData = { timestamp: data.timestamp };
+      let newData: ChartData = { timestamp: data.timestamp };
       endpointFilter.forEach((filter) => {
         if (filter.active) {
           newData[filter.value] = data[filter.value];
@@ -163,7 +163,7 @@ export default function Usage() {
   const [endpointFilter, setEndpointFilter] = useState<EndpointFilter[]>(
     Object.keys(initialChartConfig).map((endpointKey) => {
       return {
-        label: initialChartConfig[endpointKey].label,
+        label: <>{initialChartConfig[endpointKey].label}</>,
         value: endpointKey,
         active: false,
       };
@@ -171,7 +171,7 @@ export default function Usage() {
   );
 
   const { chartConfig, chartData } = getDerivedChartData(
-    initialChartConfig,
+    JSON.parse(JSON.stringify(initialChartConfig)),
     initialChartData,
     endpointFilter
   );
