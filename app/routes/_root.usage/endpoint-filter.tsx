@@ -44,7 +44,7 @@ export function EndpointFilter({
           {isAnyOptionSelected && <CheckIcon className="size-3" />}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="p-0">
+      <PopoverContent align="start" className="p-0">
         <Command>
           <CommandInput />
           <CommandList>
