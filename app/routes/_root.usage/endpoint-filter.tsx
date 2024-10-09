@@ -51,13 +51,17 @@ export function EndpointFilter({
                     onSelect={() => {
                       onSelect({ ...option, active: !option.active });
                     }}
+                    className="flex items-center gap-2"
                   >
                     <div
-                      className={cn("flex items-center gap-1 rou", {
-                        "bg-slate-400 text-primary-600": isSelected,
-                      })}
+                      className={cn(
+                        "shadow-sm flex items-center justify-center border rounded-full size-5 [&_svg]:invisible",
+                        {
+                          "bg-primary [&_svg]:visible": isSelected,
+                        }
+                      )}
                     >
-                      <CheckIcon className="size-4" />
+                      <CheckIcon className="size-3 text-white" />
                     </div>
                     <span>{option.label}</span>
                   </CommandItem>
