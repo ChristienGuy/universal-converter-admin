@@ -12,13 +12,15 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "~/components/ui/chart";
+import { EndpointFilter } from "./endpoint-filter";
+import { useState } from "react";
 
 type UsageResponse = {
   id: string;
   createdAt: string;
   endpoint: string;
   method: string;
-};
+}[];
 
 type ChartData = {
   timestamp: string;
@@ -27,26 +29,6 @@ type ChartData = {
 
 const ONE_DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
 const ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
-
-export async function loader(
-  args: LoaderFunctionArgs
-): Promise<UsageResponse[] | TypedResponse<never>> {
-  const { userId } = await getAuth(args);
-  if (!userId) {
-    return redirect("/login");
-  }
-
-  const headers = new Headers({
-    "Content-Type": "application/json",
-    cookie: args.request.headers.get("Cookie") ?? "",
-  });
-
-  const usage = await fetch(`${process.env.API_BASE_URL}/usage`, {
-    headers,
-  });
-
-  return usage.json();
-}
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   hour: "numeric",
@@ -79,13 +61,27 @@ function getChartData(
   });
 }
 
-export default function Usage() {
-  const data = useLoaderData<typeof loader>();
+export async function loader(args: LoaderFunctionArgs) {
+  const { userId } = await getAuth(args);
+  if (!userId) {
+    return redirect("/login");
+  }
+
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    cookie: args.request.headers.get("Cookie") ?? "",
+  });
+
+  const response = await fetch(`${process.env.API_BASE_URL}/usage`, {
+    headers,
+  });
 
   const chartConfig: ChartConfig = {};
   const chartData = getChartData();
 
-  data.forEach((usage) => {
+  const usages = (await response.json()) as UsageResponse;
+
+  usages.forEach((usage) => {
     // key is a function of the method and endpoint
     // e.g GET /compare/random -> GETcomparerandom
     const endpointKey = `${usage.method}${usage.endpoint.replaceAll("/", "")}`;
@@ -121,9 +117,88 @@ export default function Usage() {
     }
   });
 
+  return {
+    usages,
+    chartConfig,
+    chartData,
+  };
+}
+
+const getDerivedChartData = (
+  initialChartConfig: ChartConfig,
+  initialChartData: ChartData[],
+  endpointFilter: EndpointFilter[]
+) => {
+  let chartData = initialChartData;
+  let chartConfig = { ...initialChartConfig };
+
+  if (endpointFilter.some((filter) => filter.active)) {
+    Object.keys(initialChartConfig).forEach((key) => {
+      const matchingFilter = endpointFilter.find(
+        (filter) => filter.value === key
+      );
+      if (matchingFilter?.active === false) {
+        delete chartConfig[key];
+      }
+    });
+
+    chartData = initialChartData.map((data) => {
+      let newData = { timestamp: data.timestamp };
+      endpointFilter.forEach((filter) => {
+        if (filter.active) {
+          newData[filter.value] = data[filter.value];
+        }
+      });
+      return newData;
+    });
+  }
+
+  return { chartConfig, chartData };
+};
+
+export default function Usage() {
+  const { chartConfig: initialChartConfig, chartData: initialChartData } =
+    useLoaderData<typeof loader>();
+
+  const [endpointFilter, setEndpointFilter] = useState<EndpointFilter[]>(
+    Object.keys(initialChartConfig).map((endpointKey) => {
+      return {
+        label: initialChartConfig[endpointKey].label,
+        value: endpointKey,
+        active: false,
+      };
+    })
+  );
+
+  const { chartConfig, chartData } = getDerivedChartData(
+    initialChartConfig,
+    initialChartData,
+    endpointFilter
+  );
+
+  const handleFilterChange = (selectedOption: EndpointFilter) => {
+    setEndpointFilter((prevEndpointFilter) => {
+      return prevEndpointFilter.map((option) => {
+        if (option.value === selectedOption.value) {
+          return {
+            ...option,
+            active: !option.active,
+          };
+        }
+
+        return option;
+      });
+    });
+  };
+
   return (
     <div className="grid gap-4">
-      <div></div>
+      <div className="grid justify-end">
+        <EndpointFilter
+          options={endpointFilter}
+          onSelect={handleFilterChange}
+        />
+      </div>
       <div className="rounded-xl shadow-sm border border-gray-200 p-6">
         <ChartContainer config={chartConfig}>
           <BarChart accessibilityLayer data={chartData}>
