@@ -84,7 +84,10 @@ export async function loader(args: LoaderFunctionArgs) {
   usages.forEach((usage) => {
     // key is a function of the method and endpoint
     // e.g GET /compare/random -> GETcomparerandom
-    const endpointKey = `${usage.method}${usage.endpoint.replaceAll("/", "")}`;
+    const endpointKey = `${usage.method}${usage.endpoint
+      .replaceAll("/", "")
+      .replaceAll("{", "")
+      .replaceAll("}", "")}`;
 
     const usageTimestamp = new Date(usage.createdAt);
     usageTimestamp.setMinutes(0);
@@ -114,6 +117,8 @@ export async function loader(args: LoaderFunctionArgs) {
         // TODO: add additional colors to tailwind.css for more than 5 bars
         color: `hsl(var(--chart-${Object.keys(chartConfig).length + 1}))`,
       };
+
+      console.log("chartConfig", chartConfig);
     }
   });
 
@@ -221,7 +226,7 @@ export default function Usage() {
               }
             />
             <ChartLegend content={<ChartLegendContent />} />
-            {Object.keys(chartConfig).map((endpointKey) => (
+            {Object.keys(chartConfig).map((endpointKey, index, chartArray) => (
               <Bar
                 key={endpointKey}
                 dataKey={endpointKey}
