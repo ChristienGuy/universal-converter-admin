@@ -193,7 +193,7 @@ export default function Usage() {
 
   return (
     <div className="grid gap-4">
-      <div className="grid justify-end">
+      <div className="grid justify-start">
         <EndpointFilter
           options={endpointFilter}
           onSelect={handleFilterChange}
